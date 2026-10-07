@@ -1,0 +1,17 @@
+# Generated SU2 results
+**/history*.csv
+**/flow*.vtu
+**/surface_flow*.vtu
+**/surface_flow*.csv
+**/restart_flow*.dat
+
+# Original inputs and teaching material retained only in the local folder
+previous_configs/
+**/*_backup.cfg
+1_NACA0012_Euler/mesh_NACA0012_inv.su2
+2_NACA0012_Laminar/mesh_NACA0012_lam_hybrid_v1.su2
+3_NACA0012_Unsteady/mesh_NACA0012_lam.su2
+4_NACA0012_SinWind/mesh_NACA0012_inv.su2
+4_NACA0012_SinWind/CFD_SU2_bilingual_handout.pdf
+
+.DS_Store
