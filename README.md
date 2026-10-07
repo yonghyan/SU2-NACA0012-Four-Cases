@@ -209,53 +209,224 @@ Do not disable Gatekeeper globally.
 
 ---
 
-### B. Install SU2 on Windows
+### B. Install SU2 on Windows — recommended student method
 
-#### 1. Download SU2
+The Windows setup is very similar to macOS. The main difference is that Windows uses the **Environment Variables** control panel instead of <code>~/.zshrc</code>.
 
-Go to the [official SU2 download page](https://su2code.github.io/download.html) and download the **serial** package labeled **SU2 for Windows**.
+For this class, use the **precompiled serial Windows binary**. You do not need to compile SU2 from source and you do not need Microsoft MPI.
 
-For this class, the MPI version is not required.
+#### 1. Download the official Windows binary
 
-Unzip it to a simple path without unnecessary spaces, for example:
+Open the [official SU2 download page](https://su2code.github.io/download.html).
+
+Under **Binary Executables**, download:
 
 ~~~text
-C:\SU2\
+SU2 for Windows
 ~~~
 
-Find the directory containing:
+Do **not** choose <code>SU2 MPI for Windows</code> for this class.
+
+Unzip the downloaded archive to a simple directory. A recommended location is:
+
+~~~text
+C:\SU2
+~~~
+
+Avoid directories with unnecessary spaces or non-ASCII characters if possible.
+
+Open the extracted folder and find the directory containing:
 
 ~~~text
 SU2_CFD.exe
 ~~~
 
-#### 2. Add SU2 to Windows environment variables
-
-Open:
+That directory is the SU2 executable directory. For example, depending on the archive layout, it may be something like:
 
 ~~~text
-Start menu -> search "environment variables"
+C:\SU2\bin
+~~~
+
+Use the path that actually contains <code>SU2_CFD.exe</code> on your computer.
+
+#### 2. Add <code>SU2_RUN</code> and SU2 to <code>Path</code>
+
+In Windows:
+
+~~~text
+Start
+-> search "environment variables"
 -> Edit the system environment variables
 -> Environment Variables
 ~~~
 
-Create a new variable:
+Under **User variables** (recommended for student computers), click **New** and create:
 
 ~~~text
 Variable name:  SU2_RUN
-Variable value: path to the folder containing SU2_CFD.exe
+Variable value: C:\SU2\bin
 ~~~
 
-Then edit the system/user <code>Path</code> variable and add the same directory.
+Replace <code>C:\SU2\bin</code> with the real directory containing <code>SU2_CFD.exe</code>.
 
-Close and reopen Command Prompt, then check:
+Then select the user variable named <code>Path</code>:
+
+~~~text
+Path
+-> Edit
+-> New
+-> add the same SU2 executable directory
+~~~
+
+For example:
+
+~~~text
+C:\SU2\bin
+~~~
+
+Click **OK** until all dialogs are closed.
+
+Important: close any Command Prompt windows that were already open, then open a **new** Command Prompt so that the updated environment variables are loaded.
+
+#### 3. Verify SU2
+
+Open **Command Prompt (cmd.exe)** and type:
 
 ~~~bat
+echo %SU2_RUN%
 where SU2_CFD
 SU2_CFD
 ~~~
 
-If <code>SU2_CFD</code> starts and only complains that a <code>.cfg</code> file is missing, the installation is working.
+A successful setup should behave as follows:
+
+- <code>echo %SU2_RUN%</code> prints your SU2 executable directory;
+- <code>where SU2_CFD</code> prints the full path to <code>SU2_CFD.exe</code>;
+- <code>SU2_CFD</code> starts SU2.
+
+If the final command prints:
+
+~~~text
+The configuration file (.cfg) is missing!!
+~~~
+
+that means **SU2 is installed correctly**. The solver is simply waiting for a case configuration file.
+
+The official Windows installation guide describes the same <code>SU2_RUN</code> and <code>Path</code> setup. SU2 also supports MPI on Windows, but MPI is optional and is not needed for these 2-D teaching cases.
+
+#### 4. Download this project on Windows
+
+The easiest method for students is to use the GitHub ZIP download.
+
+On this repository page:
+
+~~~text
+Code -> Download ZIP
+~~~
+
+Extract the ZIP to a simple location, for example:
+
+~~~text
+C:\Users\YourName\Documents\SU2-NACA0012-Four-Cases
+~~~
+
+Keep the folder structure unchanged because every <code>.cfg</code> file expects the shared mesh at:
+
+~~~text
+..\mesh_NACA0012_common.su2
+~~~
+
+You should see:
+
+~~~text
+SU2-NACA0012-Four-Cases
+|
+|-- mesh_NACA0012_common.su2
+|-- 1_NACA0012_Euler
+|-- 2_NACA0012_Laminar
+|-- 3_NACA0012_Unsteady
+|-- 4_NACA0012_SinWind
+\-- README.md
+~~~
+
+#### 5. Run the four cases from Windows Command Prompt
+
+Open **Command Prompt**.
+
+Move to the project directory. The <code>/d</code> option also allows CMD to change drive letters if necessary:
+
+~~~bat
+cd /d "C:\Users\YourName\Documents\SU2-NACA0012-Four-Cases"
+~~~
+
+Replace the path with the location where you extracted the repository.
+
+Run **Case 1 — steady Euler**:
+
+~~~bat
+cd 1_NACA0012_Euler
+SU2_CFD inv_NACA0012.cfg
+cd ..
+~~~
+
+Run **Case 2 — steady laminar Navier-Stokes**:
+
+~~~bat
+cd 2_NACA0012_Laminar
+SU2_CFD lam_NACA0012.cfg
+cd ..
+~~~
+
+Run **Case 3 — unsteady plunging laminar Navier-Stokes**:
+
+~~~bat
+cd 3_NACA0012_Unsteady
+SU2_CFD plunging_NACA0012.cfg
+cd ..
+~~~
+
+Run **Case 4 — unsteady Euler with sine gust**:
+
+~~~bat
+cd 4_NACA0012_SinWind
+SU2_CFD inv_gust_NACA0012.cfg
+cd ..
+~~~
+
+Always run each configuration **from inside its case folder**. The configuration uses:
+
+~~~text
+MESH_FILENAME= ../mesh_NACA0012_common.su2
+~~~
+
+so running from a different working directory may cause a mesh-file-not-found error.
+
+#### 6. What successful execution looks like
+
+When a case starts correctly, SU2 will print information about:
+
+~~~text
+mesh
+solver
+boundary markers
+iterations / time iterations
+residuals
+lift
+drag
+~~~
+
+For the steady cases, you will see numerical iterations until the steady solution is reached.
+
+For the unsteady cases, you will see both:
+
+~~~text
+TIME_ITER
+INNER_ITER
+~~~
+
+where <code>TIME_ITER</code> is the physical-time step and <code>INNER_ITER</code> is the numerical iteration used inside each physical-time step.
+
+The output files are written into the corresponding case directory.
 
 ---
 
@@ -300,30 +471,67 @@ SU2_GUI
 
 ### Windows
 
-Check Python:
+Use **Command Prompt (cmd.exe)** for the following commands. This avoids PowerShell execution-policy issues with virtual-environment activation scripts.
+
+First check that Python 3.10 or newer is installed:
 
 ~~~bat
 python --version
 ~~~
 
-Create and activate an environment:
+If Python is not found, install Python 3.10+ from the official Python website and make sure the installer option **Add Python to PATH** is enabled.
+
+Create a dedicated SU2GUI environment:
 
 ~~~bat
 python -m venv %USERPROFILE%\su2gui-env
+~~~
+
+Activate it:
+
+~~~bat
 %USERPROFILE%\su2gui-env\Scripts\activate
+~~~
+
+The command prompt should now show something similar to:
+
+~~~text
+(su2gui-env) C:\Users\YourName>
+~~~
+
+Install SU2GUI:
+
+~~~bat
 python -m pip install --upgrade pip
 pip install su2gui
 ~~~
 
-Launch:
+Before starting the GUI, verify that the CFD solver is visible from the same terminal:
+
+~~~bat
+where SU2_CFD
+~~~
+
+Then launch:
 
 ~~~bat
 SU2_GUI
 ~~~
 
-For later sessions, activate the environment first and then run <code>SU2_GUI</code>.
+For later sessions, open Command Prompt and run:
 
-If <code>SU2_GUI</code> opens but cannot start the solver, first check that <code>SU2_CFD</code> can be found from the same terminal.
+~~~bat
+%USERPROFILE%\su2gui-env\Scripts\activate
+SU2_GUI
+~~~
+
+If SU2GUI opens but **Start Solver** fails, first test:
+
+~~~bat
+SU2_CFD
+~~~
+
+from the same activated Command Prompt. If Windows cannot find it, recheck the SU2 <code>Path</code> setting.
 
 ---
 
