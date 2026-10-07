@@ -105,20 +105,18 @@ For case 3, the airfoil's plunge displacement is zero at $t=0$, while its prescr
 For this class, the easiest route is:
 
 1. install the **precompiled serial version of SU2**;
-2. install **SU2GUI** if you want to run the cases from a graphical interface;
-3. install **ParaView** for flow-field visualization;
-4. download this repository;
-5. load a mesh and a configuration file, then run the solver.
+2. install **ParaView** for flow-field visualization;
+3. download this repository;
+4. run each case with <code>SU2_CFD</code> from its case folder;
+5. open the generated <code>.vtu</code> files in ParaView.
 
-You do **not** need MPI, RANS, a compiler, or a source build for these teaching cases.
+You do **not** need MPI, RANS, SU2GUI, a compiler, or a source build for these teaching cases.
 
 Official links:
 
 - [SU2 download page](https://su2code.github.io/download.html)
 - [SU2 macOS/Linux installation guide](https://su2code.github.io/docs_v7/SU2-Linux-MacOS/)
 - [SU2 Windows installation guide](https://su2code.github.io/docs_v7/SU2-Windows/)
-- [SU2GUI installation guide](https://su2code.github.io/su2gui/Installation/)
-- [SU2GUI quick start](https://su2code.github.io/su2gui/Quick-Start/)
 - [ParaView download](https://www.paraview.org/download/)
 
 ### A. Install SU2 on macOS
@@ -430,111 +428,6 @@ The output files are written into the corresponding case directory.
 
 ---
 
-## Install SU2GUI (recommended for classroom use)
-
-SU2GUI is a graphical front end for SU2. The actual CFD calculation is still performed by <code>SU2_CFD</code>.
-
-SU2GUI currently requires:
-
-- Python 3.10 or newer;
-- a working SU2 installation.
-
-### macOS
-
-Check Python:
-
-~~~bash
-python3 --version
-~~~
-
-Create a separate environment:
-
-~~~bash
-python3 -m venv ~/su2gui-env
-source ~/su2gui-env/bin/activate
-python -m pip install --upgrade pip
-pip install su2gui
-~~~
-
-Launch the GUI:
-
-~~~bash
-SU2_GUI
-~~~
-
-For later sessions:
-
-~~~bash
-source ~/su2gui-env/bin/activate
-SU2_GUI
-~~~
-
-### Windows
-
-Use **Command Prompt (cmd.exe)** for the following commands. This avoids PowerShell execution-policy issues with virtual-environment activation scripts.
-
-First check that Python 3.10 or newer is installed:
-
-~~~bat
-python --version
-~~~
-
-If Python is not found, install Python 3.10+ from the official Python website and make sure the installer option **Add Python to PATH** is enabled.
-
-Create a dedicated SU2GUI environment:
-
-~~~bat
-python -m venv %USERPROFILE%\su2gui-env
-~~~
-
-Activate it:
-
-~~~bat
-%USERPROFILE%\su2gui-env\Scripts\activate
-~~~
-
-The command prompt should now show something similar to:
-
-~~~text
-(su2gui-env) C:\Users\YourName>
-~~~
-
-Install SU2GUI:
-
-~~~bat
-python -m pip install --upgrade pip
-pip install su2gui
-~~~
-
-Before starting the GUI, verify that the CFD solver is visible from the same terminal:
-
-~~~bat
-where SU2_CFD
-~~~
-
-Then launch:
-
-~~~bat
-SU2_GUI
-~~~
-
-For later sessions, open Command Prompt and run:
-
-~~~bat
-%USERPROFILE%\su2gui-env\Scripts\activate
-SU2_GUI
-~~~
-
-If SU2GUI opens but **Start Solver** fails, first test:
-
-~~~bat
-SU2_CFD
-~~~
-
-from the same activated Command Prompt. If Windows cannot find it, recheck the SU2 <code>Path</code> setting.
-
----
-
 ## Install ParaView
 
 Download ParaView from the [official ParaView website](https://www.paraview.org/download/) and install the version for your operating system.
@@ -578,96 +471,9 @@ cd SU2-NACA0012-Four-Cases
 
 ---
 
-## Recommended classroom workflow with SU2GUI
+## Run the four teaching cases
 
-The same workflow is used on Windows and macOS.
-
-### 1. Open SU2GUI
-
-Launch:
-
-~~~text
-SU2_GUI
-~~~
-
-Create a new case.
-
-### 2. Load the mesh first
-
-Choose the shared mesh:
-
-~~~text
-mesh_NACA0012_common.su2
-~~~
-
-The mesh contains the NACA0012 airfoil, the computational domain, and the boundary markers <code>airfoil</code> and <code>farfield</code>.
-
-### 3. Load one configuration file
-
-Choose one of the following:
-
-~~~text
-Case 1:
-1_NACA0012_Euler/inv_NACA0012.cfg
-
-Case 2:
-2_NACA0012_Laminar/lam_NACA0012.cfg
-
-Case 3:
-3_NACA0012_Unsteady/plunging_NACA0012.cfg
-
-Case 4:
-4_NACA0012_SinWind/inv_gust_NACA0012.cfg
-~~~
-
-Always load the **mesh before the configuration file**.
-
-### 4. Inspect the important settings
-
-For the steady Euler case, look for:
-
-~~~text
-SOLVER = EULER
-MACH_NUMBER = 0.2
-AOA = 0.0
-MARKER_EULER = ( airfoil )
-MARKER_FAR = ( farfield )
-~~~
-
-For the steady laminar case, look for:
-
-~~~text
-SOLVER = NAVIER_STOKES
-KIND_TURB_MODEL = NONE
-REYNOLDS_NUMBER = 1000
-MARKER_HEATFLUX = ( airfoil, 0.0 )
-~~~
-
-For the two unsteady cases, also look for:
-
-~~~text
-TIME_DOMAIN = YES
-TIME_STEP
-TIME_ITER
-INNER_ITER
-~~~
-
-### 5. Start the solver
-
-In SU2GUI, go to the Solver section and click **Start Solver**.
-
-For a steady case, the displayed iterations are numerical convergence iterations.
-
-For an unsteady case:
-
-- <code>TIME_ITER</code> is the physical-time step;
-- <code>INNER_ITER</code> is the numerical iteration used to converge each physical-time step.
-
----
-
-## Command-line method (reliable fallback)
-
-If you prefer to run the cases directly, open a terminal in the repository root.
+Open Terminal on macOS/Linux or Command Prompt on Windows in the repository root. Each case should be run from its own case folder because the configuration files use a relative path to the shared mesh.
 
 ### macOS/Linux
 
@@ -765,28 +571,6 @@ The configurations expect:
 
 Keep the repository folder structure unchanged, or update <code>MESH_FILENAME</code>.
 
-### <code>SU2_GUI: command not found</code>
-
-Activate the Python environment in which SU2GUI was installed.
-
-macOS:
-
-~~~bash
-source ~/su2gui-env/bin/activate
-~~~
-
-Windows:
-
-~~~bat
-%USERPROFILE%\su2gui-env\Scripts\activate
-~~~
-
-Then run:
-
-~~~text
-SU2_GUI
-~~~
-
 ### macOS says that Apple cannot verify <code>SU2_CFD</code>
 
 If SU2 came from the official SU2 source, use:
@@ -806,19 +590,18 @@ For this project:
 - <code>.su2</code> = computational mesh and boundary-marker names;
 - <code>.cfg</code> = physics, boundary conditions, numerical settings, time settings, and output settings;
 - <code>SU2_CFD</code> = the CFD solver;
-- <code>SU2GUI</code> = the graphical interface used to prepare and launch the solver;
 - <code>ParaView</code> = post-processing and visualization.
 
 The basic workflow is:
 
 ~~~text
-Load mesh
+Choose a case folder
    ->
-Load configuration
+Read / modify the .cfg file
    ->
-Check Mach / AoA / Re / steady or unsteady settings
+Run: SU2_CFD case.cfg
    ->
-Start Solver
+Check the terminal output and history CSV
    ->
 Open VTU results in ParaView
 ~~~
