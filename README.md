@@ -1,6 +1,6 @@
 # Four controlled NACA0012 cases in SU2
 
-This project contains four two-dimensional SU2 v8.5.0 cases. They now use the **same airfoil mesh, free-stream state, numerical settings where applicable, and iteration limits**. The intentional model differences are viscosity, steady versus unsteady flow, and the type of imposed disturbance: airfoil plunge or incoming sine gust.
+This project contains four two-dimensional SU2 v8.5.0 cases. They use the **same airfoil mesh, Mach number, angle of attack, temperature, speed, numerical settings where applicable, and iteration limits**. The two Euler cases share one free-stream pressure, and the two laminar Navier–Stokes cases share a Reynolds number. The model differences are viscosity, steady versus unsteady flow, and the imposed disturbance: airfoil plunge or incoming sine gust.
 
 ## Shared baseline
 
@@ -14,20 +14,15 @@ This project contains four two-dimensional SU2 v8.5.0 cases. They now use the **
 | Free-stream temperature | $T_\infty=288.15$ K |
 | Gas model | Ideal gas, $\gamma=1.4$, $R=287.058\ \mathrm{J/(kg\,K)}$ |
 | Free-stream speed | $U_\infty=M_\infty\sqrt{\gamma RT_\infty}=68.0594$ m/s, directed along $+x$ |
-| Free-stream pressure and density | $p_\infty\approx21.7462$ Pa; $\rho_\infty\approx2.6290\times10^{-4}\ \mathrm{kg/m^3}$ |
+| Euler cases 1 and 4: pressure and density | $p_\infty=101325$ Pa; $\rho_\infty\approx1.22498\ \mathrm{kg/m^3}$ |
+| Navier–Stokes cases 2 and 3: pressure and density | $p_\infty\approx21.7462$ Pa; $\rho_\infty\approx2.6290\times10^{-4}\ \mathrm{kg/m^3}$, derived from $Re_c=1000$ |
 | Reynolds number | $Re_c=\rho_\infty U_\infty c/\mu_\infty=1000$ in the two viscous cases |
 | Viscosity at $T_\infty$ | $\mu_\infty\approx1.7893\times10^{-5}\ \mathrm{Pa\,s}$, using SU2's default Sutherland air model |
 | Initial solution | Uniform free-stream flow, with no restart file read |
 
-The pressure is intentionally low. It makes the inviscid and viscous cases start from the same $M_\infty$, $T_\infty$, $p_\infty$, $\rho_\infty$, and velocity while retaining $Re_c=1000$ with the default air viscosity and a 1 m chord. **These are controlled numerical examples, not atmospheric-pressure airfoil predictions.** Reynolds number is a viscous-flow parameter; it is not physically defined for the Euler cases, although they share the same baseline density and velocity.
+At the specified Mach number, temperature, 1 m chord, and Sutherland air viscosity, prescribing $Re_c=1000$ determines the low pressure and density in cases 2 and 3. The Euler equations have no viscosity term; cases 1 and 4 instead use 101325 Pa and do not take a Reynolds-number input. Thus the Euler and Navier–Stokes cases **do not have identical dimensional free-stream states**. The low-Re laminar cases are numerical examples, not atmospheric-pressure airfoil predictions.
 
 The airfoil and circular far field are defined by the mesh coordinates, not by a geometry-generation script in this project. The mesh boundary markers are <code>airfoil</code> and <code>farfield</code>. All four configurations point to the single shared mesh at <code>../mesh_NACA0012_common.su2</code>. Older case-specific meshes in the original local folder are **not** read by these configurations or required to run them.
-
-### Why use the same mesh?
-
-The shared mesh is the original **viscous hybrid mesh**, with 9,080 triangles and 4,076 quadrilaterals. All 200 airfoil-adjacent elements are quadrilaterals, and their first normal spacing has a median of about $5.0\times10^{-5}$ m. For comparison, the original inviscid mesh had 5,233 points and 10,216 triangles; its median airfoil-adjacent normal spacing was about $1.02\times10^{-2}$ m. These values were measured from the mesh coordinates and wall-adjacent element vertices.
-
-The coarse inviscid mesh would not be a good choice for a no-slip Navier–Stokes wall: the viscous boundary layer needs near-wall resolution, as explained in the [SU2 laminar flat-plate tutorial](https://su2code.github.io/tutorials/Laminar_Flat_Plate/). Running Euler on the finer viscous mesh is valid, although it costs more. Using this one mesh also prevents mesh changes from obscuring differences between the governing equations. The shared mesh has **not** undergone a grid-convergence study, so its use does not establish mesh-independent results.
 
 ## Four cases
 
@@ -40,7 +35,7 @@ The coarse inviscid mesh would not be a good choice for a no-slip Navier–Stoke
 
 All four cases use Roe convective fluxes, MUSCL reconstruction, the Venkatakrishnan limiter, weighted least-squares gradients, implicit Euler pseudo-time integration, CFL 1.0, and the same linear-solver and multigrid settings. The two unsteady cases use second-order dual-time stepping with the **same** physical step $\Delta t=0.0023555025613149587$ s and nominal duration $250\Delta t=0.5888756403$ s. Steady iterations are numerical convergence iterations, not physical seconds.
 
-Cases 1 and 2 isolate the change from inviscid to laminar viscous flow at a fixed airfoil. Cases 1 and 4 compare a fixed-airfoil steady Euler calculation with an unsteady Euler calculation driven by a gust. Cases 2 and 3 compare a fixed-airfoil steady laminar calculation with an unsteady laminar calculation driven by plunge. The latter two comparisons change both time dependence and forcing, so they do not isolate time dependence alone.
+Cases 1 and 2 illustrate the change from inviscid to laminar viscous equations at a fixed airfoil, but their free-stream pressure and density differ. Cases 1 and 4 share the Euler free-stream state and compare a steady calculation with an unsteady gust calculation. Cases 2 and 3 share the laminar free-stream state and compare a steady calculation with an unsteady plunge calculation. The latter two comparisons change both time dependence and forcing, so they do not isolate time dependence alone.
 
 ### Governing equations
 
@@ -101,7 +96,7 @@ the settings are $x_0=-25$ m, $t_0=0$ s, $L=25$ m, $N=1$, and $A_g=2.37668682$ m
 
 ### Initial and boundary conditions
 
-All four configurations set <code>RESTART_SOL= NO</code>. The initial fluid solution is the uniform free-stream state in the shared-baseline table. Case 1 and case 4 explicitly use the shared pressure. In cases 2 and 3, <code>INIT_OPTION= REYNOLDS</code> makes SU2 recompute the same pressure from $Re_c=1000$, Sutherland viscosity, and $T_\infty$. The inviscid walls are impermeable slip walls. The viscous walls are no-slip and have zero prescribed heat flux. The outer boundary uses the <code>farfield</code> marker.
+All four configurations set <code>RESTART_SOL= NO</code>. Each initial fluid solution is its uniform free-stream state in the table above. Cases 1 and 4 explicitly set $p_\infty=101325$ Pa. In cases 2 and 3, <code>INIT_OPTION= REYNOLDS</code> makes SU2 compute $p_\infty\approx21.7462$ Pa from $Re_c=1000$, Sutherland viscosity, and $T_\infty$. The inviscid walls are impermeable slip walls. The viscous walls are no-slip and have zero prescribed heat flux. The outer boundary uses the <code>farfield</code> marker.
 
 For case 3, the airfoil's plunge displacement is zero at $t=0$, while its prescribed velocity is nonzero. For case 4, the gust begins at $t=0$ over $-25<x<0$ m; the initial uniform flow is then advanced with that upstream gust field active. No case reads the old <code>restart_flow*.dat</code> files.
 
