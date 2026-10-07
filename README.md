@@ -100,54 +100,518 @@ All four configurations set <code>RESTART_SOL= NO</code>. Each initial fluid sol
 
 For case 3, the airfoil's plunge displacement is zero at $t=0$, while its prescribed velocity is nonzero. For case 4, the gust begins at $t=0$ over $-25<x<0$ m; the initial uniform flow is then advanced with that upstream gust field active. No case reads the old <code>restart_flow*.dat</code> files.
 
-## Install SU2 v8.5.0
+## Student quick start: install once, then run the cases
 
-These instructions build a serial SU2 installation on macOS or Linux. You need Git, Python 3, and a C/C++ compiler. On macOS, install Xcode Command Line Tools if <code>clang --version</code> is unavailable. On Ubuntu/Debian, the prerequisites can be installed with <code>sudo apt install git python3 build-essential</code>.
+For this class, the easiest route is:
 
-~~~bash
-git clone --branch v8.5.0 --depth 1 https://github.com/su2code/SU2.git "$HOME/SU2-v8.5.0"
-cd "$HOME/SU2-v8.5.0"
-./meson.py setup build --prefix="$PWD/install" -Dwith-mpi=disabled -Denable-cgns=false -Denable-tecio=false
-./ninja -C build install
+1. install the **precompiled serial version of SU2**;
+2. install **SU2GUI** if you want to run the cases from a graphical interface;
+3. install **ParaView** for flow-field visualization;
+4. download this repository;
+5. load a mesh and a configuration file, then run the solver.
+
+You do **not** need MPI, RANS, a compiler, or a source build for these teaching cases.
+
+Official links:
+
+- [SU2 download page](https://su2code.github.io/download.html)
+- [SU2 macOS/Linux installation guide](https://su2code.github.io/docs_v7/SU2-Linux-MacOS/)
+- [SU2 Windows installation guide](https://su2code.github.io/docs_v7/SU2-Windows/)
+- [SU2GUI installation guide](https://su2code.github.io/su2gui/Installation/)
+- [SU2GUI quick start](https://su2code.github.io/su2gui/Quick-Start/)
+- [ParaView download](https://www.paraview.org/download/)
+
+### A. Install SU2 on macOS
+
+#### 1. Download SU2
+
+Go to the [official SU2 download page](https://su2code.github.io/download.html) and download the **serial** package labeled **SU2 for macOS**.
+
+For these 2-D classroom cases, do not choose the MPI version.
+
+Unzip the archive to a simple location, for example:
+
+~~~text
+~/SU2/
 ~~~
 
-The native <code>.su2</code> mesh and VTK/CSV output used here do not require CGNS or TecIO. See the [official SU2 build guide](https://su2code.github.io/docs_v7/Build-SU2-Linux-MacOS/) and [v8.5.0 release](https://github.com/su2code/SU2/releases/tag/v8.5.0) for other installation options.
+Find the directory that contains the executable:
 
-Make the executable available in the current terminal. Add the same exports to <code>~/.zshrc</code> (macOS zsh) or <code>~/.bashrc</code> (Linux Bash) if you want them to persist.
+~~~text
+SU2_CFD
+~~~
+
+For example, the path may look like:
+
+~~~text
+/Users/yourname/SU2/bin
+~~~
+
+The exact path depends on where you unpacked SU2.
+
+#### 2. Add SU2 to the macOS PATH
+
+macOS normally uses the zsh shell. Open Terminal and edit:
 
 ~~~bash
-export SU2_HOME="$HOME/SU2-v8.5.0"
-export SU2_RUN="$SU2_HOME/install/bin"
+nano ~/.zshrc
+~~~
+
+Add the following lines, replacing the example path with the directory that actually contains <code>SU2_CFD</code>:
+
+~~~bash
+export SU2_RUN="/Users/yourname/SU2/bin"
 export PATH="$SU2_RUN:$PATH"
-command -v SU2_CFD
-SU2_CFD --help
+export PYTHONPATH="$SU2_RUN:$PYTHONPATH"
 ~~~
 
-The first line of the help output should identify SU2 v8.5.0 "Harrier". Skip the build if a compatible version is already installed.
-
-## Download and run
-
-Clone the GitHub repository and enter the directory containing this README:
+Save the file, then reload it:
 
 ~~~bash
-git clone "https://github.com/yonghyan/SU2-NACA0012-Four-Cases.git" "$HOME/SU2-NACA0012-Four-Cases"
-cd "$HOME/SU2-NACA0012-Four-Cases"
+source ~/.zshrc
 ~~~
 
-From the directory containing this README, run each case in its own directory so that <code>../mesh_NACA0012_common.su2</code> resolves correctly:
+Verify the installation:
 
 ~~~bash
-# 1: steady Euler
+which SU2_CFD
+SU2_CFD
+~~~
+
+<code>which SU2_CFD</code> should print the path to the executable.
+
+If running <code>SU2_CFD</code> by itself prints an error such as:
+
+~~~text
+The configuration file (.cfg) is missing!!
+~~~
+
+that is actually a good sign: SU2 has started successfully and is only telling you that no case file was supplied.
+
+#### 3. macOS security warning
+
+The first time you run a downloaded SU2 binary, macOS may display:
+
+~~~text
+Apple could not verify "SU2_CFD" is free of malware...
+~~~
+
+If you downloaded SU2 from the official SU2 website or official <code>su2code</code> GitHub repository:
+
+1. click **Done**;
+2. open **System Settings -> Privacy & Security**;
+3. scroll to the Security section;
+4. click **Open Anyway** for <code>SU2_CFD</code>;
+5. confirm that you want to open it;
+6. return to Terminal and run <code>SU2_CFD</code> again.
+
+Do not disable Gatekeeper globally.
+
+---
+
+### B. Install SU2 on Windows
+
+#### 1. Download SU2
+
+Go to the [official SU2 download page](https://su2code.github.io/download.html) and download the **serial** package labeled **SU2 for Windows**.
+
+For this class, the MPI version is not required.
+
+Unzip it to a simple path without unnecessary spaces, for example:
+
+~~~text
+C:\SU2\
+~~~
+
+Find the directory containing:
+
+~~~text
+SU2_CFD.exe
+~~~
+
+#### 2. Add SU2 to Windows environment variables
+
+Open:
+
+~~~text
+Start menu -> search "environment variables"
+-> Edit the system environment variables
+-> Environment Variables
+~~~
+
+Create a new variable:
+
+~~~text
+Variable name:  SU2_RUN
+Variable value: path to the folder containing SU2_CFD.exe
+~~~
+
+Then edit the system/user <code>Path</code> variable and add the same directory.
+
+Close and reopen Command Prompt, then check:
+
+~~~bat
+where SU2_CFD
+SU2_CFD
+~~~
+
+If <code>SU2_CFD</code> starts and only complains that a <code>.cfg</code> file is missing, the installation is working.
+
+---
+
+## Install SU2GUI (recommended for classroom use)
+
+SU2GUI is a graphical front end for SU2. The actual CFD calculation is still performed by <code>SU2_CFD</code>.
+
+SU2GUI currently requires:
+
+- Python 3.10 or newer;
+- a working SU2 installation.
+
+### macOS
+
+Check Python:
+
+~~~bash
+python3 --version
+~~~
+
+Create a separate environment:
+
+~~~bash
+python3 -m venv ~/su2gui-env
+source ~/su2gui-env/bin/activate
+python -m pip install --upgrade pip
+pip install su2gui
+~~~
+
+Launch the GUI:
+
+~~~bash
+SU2_GUI
+~~~
+
+For later sessions:
+
+~~~bash
+source ~/su2gui-env/bin/activate
+SU2_GUI
+~~~
+
+### Windows
+
+Check Python:
+
+~~~bat
+python --version
+~~~
+
+Create and activate an environment:
+
+~~~bat
+python -m venv %USERPROFILE%\su2gui-env
+%USERPROFILE%\su2gui-env\Scripts\activate
+python -m pip install --upgrade pip
+pip install su2gui
+~~~
+
+Launch:
+
+~~~bat
+SU2_GUI
+~~~
+
+For later sessions, activate the environment first and then run <code>SU2_GUI</code>.
+
+If <code>SU2_GUI</code> opens but cannot start the solver, first check that <code>SU2_CFD</code> can be found from the same terminal.
+
+---
+
+## Install ParaView
+
+Download ParaView from the [official ParaView website](https://www.paraview.org/download/) and install the version for your operating system.
+
+ParaView is used only for post-processing. It opens the <code>.vtu</code> files produced by SU2 and can display pressure, Mach number, density, velocity, and other flow variables.
+
+---
+
+## Download this teaching repository
+
+### Easiest method: Download ZIP
+
+On this GitHub page, click:
+
+~~~text
+Code -> Download ZIP
+~~~
+
+Unzip the folder and keep the directory structure unchanged.
+
+The shared mesh is located at:
+
+~~~text
+mesh_NACA0012_common.su2
+~~~
+
+Each configuration uses the relative path:
+
+~~~text
+../mesh_NACA0012_common.su2
+~~~
+
+so do not move the <code>.cfg</code> files away from their case folders unless you also update <code>MESH_FILENAME</code>.
+
+### Alternative: Git
+
+~~~bash
+git clone https://github.com/yonghyan/SU2-NACA0012-Four-Cases.git
+cd SU2-NACA0012-Four-Cases
+~~~
+
+---
+
+## Recommended classroom workflow with SU2GUI
+
+The same workflow is used on Windows and macOS.
+
+### 1. Open SU2GUI
+
+Launch:
+
+~~~text
+SU2_GUI
+~~~
+
+Create a new case.
+
+### 2. Load the mesh first
+
+Choose the shared mesh:
+
+~~~text
+mesh_NACA0012_common.su2
+~~~
+
+The mesh contains the NACA0012 airfoil, the computational domain, and the boundary markers <code>airfoil</code> and <code>farfield</code>.
+
+### 3. Load one configuration file
+
+Choose one of the following:
+
+~~~text
+Case 1:
+1_NACA0012_Euler/inv_NACA0012.cfg
+
+Case 2:
+2_NACA0012_Laminar/lam_NACA0012.cfg
+
+Case 3:
+3_NACA0012_Unsteady/plunging_NACA0012.cfg
+
+Case 4:
+4_NACA0012_SinWind/inv_gust_NACA0012.cfg
+~~~
+
+Always load the **mesh before the configuration file**.
+
+### 4. Inspect the important settings
+
+For the steady Euler case, look for:
+
+~~~text
+SOLVER = EULER
+MACH_NUMBER = 0.2
+AOA = 0.0
+MARKER_EULER = ( airfoil )
+MARKER_FAR = ( farfield )
+~~~
+
+For the steady laminar case, look for:
+
+~~~text
+SOLVER = NAVIER_STOKES
+KIND_TURB_MODEL = NONE
+REYNOLDS_NUMBER = 1000
+MARKER_HEATFLUX = ( airfoil, 0.0 )
+~~~
+
+For the two unsteady cases, also look for:
+
+~~~text
+TIME_DOMAIN = YES
+TIME_STEP
+TIME_ITER
+INNER_ITER
+~~~
+
+### 5. Start the solver
+
+In SU2GUI, go to the Solver section and click **Start Solver**.
+
+For a steady case, the displayed iterations are numerical convergence iterations.
+
+For an unsteady case:
+
+- <code>TIME_ITER</code> is the physical-time step;
+- <code>INNER_ITER</code> is the numerical iteration used to converge each physical-time step.
+
+---
+
+## Command-line method (reliable fallback)
+
+If you prefer to run the cases directly, open a terminal in the repository root.
+
+### macOS/Linux
+
+~~~bash
+# Case 1: steady Euler
 (cd 1_NACA0012_Euler && SU2_CFD inv_NACA0012.cfg)
 
-# 2: steady laminar Navier–Stokes
+# Case 2: steady laminar Navier-Stokes
 (cd 2_NACA0012_Laminar && SU2_CFD lam_NACA0012.cfg)
 
-# 3: unsteady laminar Navier–Stokes with prescribed plunge
+# Case 3: unsteady laminar Navier-Stokes with plunge
 (cd 3_NACA0012_Unsteady && SU2_CFD plunging_NACA0012.cfg)
 
-# 4: unsteady Euler with a sine gust
+# Case 4: unsteady Euler with sine gust
 (cd 4_NACA0012_SinWind && SU2_CFD inv_gust_NACA0012.cfg)
 ~~~
 
-The original local folder also contains older result files, meshes, and configuration backups. Those files were generated with different settings and are excluded from this minimal repository. The four active configurations write results with distinct names: <code>history_unified.csv</code>, <code>flow_unified*.vtu</code>, <code>surface_flow_unified*.vtu</code>, and <code>restart_flow_unified*.dat</code>. Steady cases write field output at the final iteration; unsteady cases request output every ten physical steps. ParaView can open the VTK files as time series.
+### Windows Command Prompt
+
+Enter the chosen case directory first. For example:
+
+~~~bat
+cd 1_NACA0012_Euler
+SU2_CFD inv_NACA0012.cfg
+~~~
+
+Then return to the repository root before entering another case directory.
+
+---
+
+## Output files
+
+The active configurations write files with these prefixes:
+
+~~~text
+history_unified.csv
+flow_unified*.vtu
+surface_flow_unified*.vtu
+restart_flow_unified*.dat
+~~~
+
+### Steady cases
+
+The main result is the final converged flow field.
+
+Typical outputs include:
+
+- lift coefficient, <code>CL</code>;
+- drag coefficient, <code>CD</code>;
+- pressure and Mach-number fields;
+- surface-flow data.
+
+### Unsteady cases
+
+A sequence of flow fields is written every ten physical-time steps.
+
+In ParaView:
+
+1. select the <code>flow_unified*.vtu</code> files;
+2. open them as a file series;
+3. click **Apply**;
+4. use the Play button to view the transient flow.
+
+The history file can also be used to examine quantities such as <code>CL(t)</code> and <code>CD(t)</code>.
+
+---
+
+## Common problems
+
+### <code>SU2_CFD: command not found</code>
+
+SU2 is not on the system <code>PATH</code>. Recheck <code>SU2_RUN</code> and <code>PATH</code>, then open a new terminal.
+
+### <code>The configuration file (.cfg) is missing!!</code>
+
+If this appears after typing only:
+
+~~~text
+SU2_CFD
+~~~
+
+the executable is working. You simply need to provide a configuration file, for example:
+
+~~~text
+SU2_CFD inv_NACA0012.cfg
+~~~
+
+### Mesh file cannot be found
+
+The configurations expect:
+
+~~~text
+../mesh_NACA0012_common.su2
+~~~
+
+Keep the repository folder structure unchanged, or update <code>MESH_FILENAME</code>.
+
+### <code>SU2_GUI: command not found</code>
+
+Activate the Python environment in which SU2GUI was installed.
+
+macOS:
+
+~~~bash
+source ~/su2gui-env/bin/activate
+~~~
+
+Windows:
+
+~~~bat
+%USERPROFILE%\su2gui-env\Scripts\activate
+~~~
+
+Then run:
+
+~~~text
+SU2_GUI
+~~~
+
+### macOS says that Apple cannot verify <code>SU2_CFD</code>
+
+If SU2 came from the official SU2 source, use:
+
+~~~text
+System Settings -> Privacy & Security -> Open Anyway
+~~~
+
+Do not disable macOS security globally.
+
+---
+
+## What students should remember
+
+For this project:
+
+- <code>.su2</code> = computational mesh and boundary-marker names;
+- <code>.cfg</code> = physics, boundary conditions, numerical settings, time settings, and output settings;
+- <code>SU2_CFD</code> = the CFD solver;
+- <code>SU2GUI</code> = the graphical interface used to prepare and launch the solver;
+- <code>ParaView</code> = post-processing and visualization.
+
+The basic workflow is:
+
+~~~text
+Load mesh
+   ->
+Load configuration
+   ->
+Check Mach / AoA / Re / steady or unsteady settings
+   ->
+Start Solver
+   ->
+Open VTU results in ParaView
+~~~
+
