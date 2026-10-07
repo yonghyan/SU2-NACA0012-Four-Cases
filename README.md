@@ -23,6 +23,12 @@ The pressure is intentionally low. It makes the inviscid and viscous cases start
 
 The airfoil and circular far field are defined by the mesh coordinates, not by a geometry-generation script in this project. The mesh boundary markers are <code>airfoil</code> and <code>farfield</code>. All four configurations point to the single shared mesh at <code>../mesh_NACA0012_common.su2</code>. Older case-specific meshes in the original local folder are **not** read by these configurations or required to run them.
 
+### Why use the same mesh?
+
+The shared mesh is the original **viscous hybrid mesh**, with 9,080 triangles and 4,076 quadrilaterals. All 200 airfoil-adjacent elements are quadrilaterals, and their first normal spacing has a median of about $5.0\times10^{-5}$ m. For comparison, the original inviscid mesh had 5,233 points and 10,216 triangles; its median airfoil-adjacent normal spacing was about $1.02\times10^{-2}$ m. These values were measured from the mesh coordinates and wall-adjacent element vertices.
+
+The coarse inviscid mesh would not be a good choice for a no-slip Navier–Stokes wall: the viscous boundary layer needs near-wall resolution, as explained in the [SU2 laminar flat-plate tutorial](https://su2code.github.io/tutorials/Laminar_Flat_Plate/). Running Euler on the finer viscous mesh is valid, although it costs more. Using this one mesh also prevents mesh changes from obscuring differences between the governing equations. The shared mesh has **not** undergone a grid-convergence study, so its use does not establish mesh-independent results.
+
 ## Four cases
 
 | Case | Equation and wall condition | Viscosity | Physical time | Disturbance | Iteration limit |
