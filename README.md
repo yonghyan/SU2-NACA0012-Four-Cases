@@ -207,11 +207,49 @@ Do not disable Gatekeeper globally.
 
 ---
 
-### B. Install SU2 on Windows — recommended student method
+### B. Install SU2 on Windows
+
+For this class, use the **precompiled non-MPI Windows binary**. You do not need to compile SU2 from source and you do not need Microsoft MPI.
+
+#### Option 1 — quick script (recommended for class)
+
+After downloading and extracting this teaching repository, simply double-click:
+
+~~~text
+install_su2_windows.bat
+~~~
+
+The launcher calls <code>install_su2_windows.ps1</code> and automatically:
+
+1. downloads the official **SU2 v8.5.0 Windows non-MPI package** from the SU2 GitHub release;
+2. extracts it under your user folder at <code>%USERPROFILE%\SU2\v8.5.0</code>;
+3. finds <code>SU2_CFD.exe</code>;
+4. creates the user environment variable <code>SU2_RUN</code>;
+5. adds the SU2 executable directory to your user <code>Path</code>.
+
+Administrator privileges are not required.
+
+When the script finishes, close the old terminal and open a **new Command Prompt**, then check:
+
+~~~bat
+echo %SU2_RUN%
+where SU2_CFD
+SU2_CFD
+~~~
+
+If <code>SU2_CFD</code> starts and reports that the configuration file (<code>.cfg</code>) is missing, the installation is working correctly.
+
+If double-clicking the launcher is blocked by local Windows security settings, open Command Prompt in the repository folder and run:
+
+~~~bat
+install_su2_windows.bat
+~~~
+
+The manual method below is kept as a fallback.
+
+#### Option 2 — manual installation
 
 The Windows setup is very similar to macOS. The main difference is that Windows uses the **Environment Variables** control panel instead of <code>~/.zshrc</code>.
-
-For this class, use the **precompiled serial Windows binary**. You do not need to compile SU2 from source and you do not need Microsoft MPI.
 
 #### 1. Download the official Windows binary
 
