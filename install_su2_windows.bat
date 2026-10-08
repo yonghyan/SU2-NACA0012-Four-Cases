@@ -2,23 +2,26 @@
 setlocal
 
 echo ===============================================
-echo  SU2 Windows quick installer
+echo  SU2 Windows environment setup
 echo ===============================================
 echo.
-echo This will download and install SU2 v8.5.0 for the current user.
-echo No administrator privileges are required.
+echo This script does NOT download SU2.
+echo Please download and extract SU2 inside this repository first.
+echo It will only configure SU2_RUN and the user Path.
 echo.
 
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0install_su2_windows.ps1"
 
 echo.
 if errorlevel 1 (
-    echo Installation did not complete successfully.
-    echo Please read the error message above.
+    echo Environment setup did not complete successfully.
+    echo Please read the message above.
 ) else (
-    echo Installation finished.
+    echo Environment setup finished.
     echo Open a NEW Command Prompt, then run:
+    echo   echo %%SU2_RUN%%
     echo   where SU2_CFD
+    echo   SU2_CFD
 )
 
 echo.
