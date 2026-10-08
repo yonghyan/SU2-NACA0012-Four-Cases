@@ -222,12 +222,26 @@ install_su2_windows.bat
 The launcher calls <code>install_su2_windows.ps1</code> and automatically:
 
 1. downloads the official **SU2 v8.5.0 Windows non-MPI package** from the SU2 GitHub release;
-2. extracts it under your user folder at <code>%USERPROFILE%\SU2\v8.5.0</code>;
+2. extracts it into a local <code>SU2</code> folder inside this teaching repository;
 3. finds <code>SU2_CFD.exe</code>;
 4. creates the user environment variable <code>SU2_RUN</code>;
 5. adds the SU2 executable directory to your user <code>Path</code>.
 
-Administrator privileges are not required.
+Administrator privileges are not required. Keeping SU2 inside the repository also makes the classroom setup easier to inspect and move as one folder.
+
+After installation, the folder will look roughly like:
+
+~~~text
+SU2-NACA0012-Four-Cases
+|-- SU2
+|   `-- ... SU2_CFD.exe and other SU2 files
+|-- 1_NACA0012_Euler
+|-- 2_NACA0012_Laminar
+|-- 3_NACA0012_Unsteady
+|-- 4_NACA0012_SinWind
+|-- install_su2_windows.bat
+`-- install_su2_windows.ps1
+~~~
 
 When the script finishes, close the old terminal and open a **new Command Prompt**, then check:
 
