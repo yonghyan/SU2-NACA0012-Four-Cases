@@ -36,7 +36,70 @@ Write-Host ""
 
 Write-Host "[1/4] Downloading the official SU2 Windows package..."
 Write-Host "      $DownloadUrl"
-Invoke-WebRequest -Uri $DownloadUrl -OutFile $ZipPath
+Write-Host ""
+
+# Download with a simple percentage progress bar instead of the verbose
+# "writing request stream / bytes written" messages shown by Invoke-WebRequest.
+Add-Type -AssemblyName System.Net.Http
+
+$Handler = New-Object System.Net.Http.HttpClientHandler
+$Client = New-Object System.Net.Http.HttpClient($Handler)
+
+try {
+    $Response = $Client.GetAsync(
+        $DownloadUrl,
+        [System.Net.Http.HttpCompletionOption]::ResponseHeadersRead
+    ).GetAwaiter().GetResult()
+
+    $Response.EnsureSuccessStatusCode()
+
+    $TotalBytes = $Response.Content.Headers.ContentLength
+    $InputStream = $Response.Content.ReadAsStreamAsync().GetAwaiter().GetResult()
+    $OutputStream = [System.IO.File]::Open(
+        $ZipPath,
+        [System.IO.FileMode]::Create,
+        [System.IO.FileAccess]::Write,
+        [System.IO.FileShare]::None
+    )
+
+    try {
+        $Buffer = New-Object byte[] (1024 * 1024)
+        [long]$DownloadedBytes = 0
+
+        while (($BytesRead = $InputStream.Read($Buffer, 0, $Buffer.Length)) -gt 0) {
+            $OutputStream.Write($Buffer, 0, $BytesRead)
+            $DownloadedBytes += $BytesRead
+
+            if ($TotalBytes -and $TotalBytes -gt 0) {
+                $Percent = [math]::Min(
+                    100,
+                    [math]::Floor(($DownloadedBytes * 100.0) / $TotalBytes)
+                )
+
+                $DownloadedMB = $DownloadedBytes / 1MB
+                $TotalMB = $TotalBytes / 1MB
+
+                Write-Progress                     -Activity "Downloading SU2 v$Version"                     -Status ("{0}%  ({1:N1} MB / {2:N1} MB)" -f $Percent, $DownloadedMB, $TotalMB)                     -PercentComplete $Percent
+            }
+            else {
+                $DownloadedMB = $DownloadedBytes / 1MB
+                Write-Progress                     -Activity "Downloading SU2 v$Version"                     -Status ("Downloaded {0:N1} MB" -f $DownloadedMB)
+            }
+        }
+    }
+    finally {
+        if ($OutputStream) { $OutputStream.Dispose() }
+        if ($InputStream) { $InputStream.Dispose() }
+    }
+
+    Write-Progress -Activity "Downloading SU2 v$Version" -Completed
+    Write-Host "      Download complete."
+}
+finally {
+    if ($Response) { $Response.Dispose() }
+    if ($Client) { $Client.Dispose() }
+    if ($Handler) { $Handler.Dispose() }
+}
 
 Write-Host "[2/4] Extracting SU2 to:"
 Write-Host "      $InstallDir"
