@@ -221,7 +221,7 @@ install_su2_windows.bat
 
 The launcher calls <code>install_su2_windows.ps1</code> and automatically:
 
-1. downloads the official **SU2 v8.5.0 Windows non-MPI package** from the SU2 GitHub release;
+1. downloads the official **SU2 v8.5.0 Windows non-MPI package** from the SU2 GitHub release, with a percentage/MB progress bar;
 2. extracts it into a local <code>SU2</code> folder inside this teaching repository;
 3. finds <code>SU2_CFD.exe</code>;
 4. creates the user environment variable <code>SU2_RUN</code>;
