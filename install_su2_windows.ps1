@@ -69,7 +69,7 @@ if ([string]::IsNullOrWhiteSpace($UserPath)) {
 
 $AlreadyInPath = $false
 foreach ($Entry in $PathEntries) {
-    if ($Entry.TrimEnd("\") -ieq $Su2Run.TrimEnd("\")) {
+    if ($Entry.TrimEnd([char]'\') -ieq $Su2Run.TrimEnd([char]'\')) {
         $AlreadyInPath = $true
         break
     }
@@ -87,7 +87,7 @@ if (-not $AlreadyInPath) {
 # Also update the current PowerShell process so the executable can be used now.
 $env:SU2_RUN = $Su2Run
 $CurrentEntries = $env:Path -split ";"
-if (-not ($CurrentEntries | Where-Object { $_.TrimEnd("\") -ieq $Su2Run.TrimEnd("\") })) {
+if (-not ($CurrentEntries | Where-Object { $_.TrimEnd([char]'\') -ieq $Su2Run.TrimEnd([char]'\') })) {
     $env:Path = "$Su2Run;$env:Path"
 }
 
