@@ -15,3 +15,7 @@ previous_configs/
 4_NACA0012_SinWind/CFD_SU2_bilingual_handout.pdf
 
 .DS_Store
+
+# Local SU2 binary installed by the Windows quick installer
+SU2/
+SU2-v*-win64-omp.zip
