@@ -3,7 +3,7 @@
 #
 # What this script does:
 #   1. Downloads the official non-MPI Windows binary for SU2 v8.5.0.
-#   2. Extracts it under %USERPROFILE%\SU2\v8.5.0.
+#   2. Extracts it into the teaching repository under .\SU2.
 #   3. Finds SU2_CFD.exe automatically.
 #   4. Sets the user-level SU2_RUN environment variable.
 #   5. Adds the SU2 executable directory to the user PATH.
@@ -20,9 +20,10 @@ $Version = "8.5.0"
 $ArchiveName = "SU2-v$Version-win64-omp.zip"
 $DownloadUrl = "https://github.com/su2code/SU2/releases/download/v$Version/$ArchiveName"
 
-$InstallRoot = Join-Path $env:USERPROFILE "SU2"
-$InstallDir = Join-Path $InstallRoot "v$Version"
-$ZipPath = Join-Path $env:TEMP $ArchiveName
+# Keep SU2 self-contained inside this teaching repository.
+# $PSScriptRoot is the folder containing this installer.
+$InstallDir = Join-Path $PSScriptRoot "SU2"
+$ZipPath = Join-Path $PSScriptRoot $ArchiveName
 
 Write-Host ""
 Write-Host "==============================================="
@@ -39,6 +40,7 @@ Invoke-WebRequest -Uri $DownloadUrl -OutFile $ZipPath
 
 Write-Host "[2/4] Extracting SU2 to:"
 Write-Host "      $InstallDir"
+Write-Host "      (inside this teaching repository)"
 
 if (Test-Path $InstallDir) {
     Remove-Item -Path $InstallDir -Recurse -Force
@@ -91,6 +93,7 @@ if (-not ($CurrentEntries | Where-Object { $_.TrimEnd([char]'\') -ieq $Su2Run.Tr
     $env:Path = "$Su2Run;$env:Path"
 }
 
+# Remove the downloaded archive after a successful installation.
 Remove-Item -Path $ZipPath -Force -ErrorAction SilentlyContinue
 
 Write-Host ""
