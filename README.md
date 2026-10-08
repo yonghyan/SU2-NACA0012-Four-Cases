@@ -211,25 +211,34 @@ Do not disable Gatekeeper globally.
 
 For this class, use the **precompiled non-MPI Windows binary**. You do not need to compile SU2 from source and you do not need Microsoft MPI.
 
-#### Option 1 — quick script (recommended for class)
+#### Option 1 — simple environment setup script (recommended for class)
 
-After downloading and extracting this teaching repository, simply double-click:
+The script **does not download or extract SU2**. Students download the official Windows SU2 package themselves, and the script only configures the environment variables.
+
+Recommended workflow:
+
+1. download the official **SU2 for Windows** package from the SU2 download page;
+2. extract the SU2 package somewhere **inside this teaching repository** — for example into a folder named <code>SU2</code>;
+3. double-click:
 
 ~~~text
 install_su2_windows.bat
 ~~~
 
-The launcher calls <code>install_su2_windows.ps1</code> and automatically:
+The launcher calls <code>install_su2_windows.ps1</code>. It searches this repository recursively for:
 
-1. downloads the official **SU2 v8.5.0 Windows non-MPI package** from the SU2 GitHub release, with a percentage/MB progress bar;
-2. extracts it into a local <code>SU2</code> folder inside this teaching repository;
-3. finds <code>SU2_CFD.exe</code>;
-4. creates the user environment variable <code>SU2_RUN</code>;
-5. adds the SU2 executable directory to your user <code>Path</code>.
+~~~text
+SU2_CFD.exe
+~~~
 
-Administrator privileges are not required. Keeping SU2 inside the repository also makes the classroom setup easier to inspect and move as one folder.
+and then automatically:
 
-After installation, the folder will look roughly like:
+- sets <code>SU2_RUN</code> to the folder containing <code>SU2_CFD.exe</code>;
+- adds the same folder to the user <code>Path</code>.
+
+The script performs **no download and no extraction**, and administrator privileges are not required.
+
+A typical folder layout is:
 
 ~~~text
 SU2-NACA0012-Four-Cases
@@ -243,7 +252,7 @@ SU2-NACA0012-Four-Cases
 `-- install_su2_windows.ps1
 ~~~
 
-When the script finishes, close the old terminal and open a **new Command Prompt**, then check:
+After the script finishes, close the old terminal and open a **new Command Prompt**, then check:
 
 ~~~bat
 echo %SU2_RUN%
@@ -251,15 +260,9 @@ where SU2_CFD
 SU2_CFD
 ~~~
 
-If <code>SU2_CFD</code> starts and reports that the configuration file (<code>.cfg</code>) is missing, the installation is working correctly.
+If <code>SU2_CFD</code> starts and reports that the configuration file (<code>.cfg</code>) is missing, the environment setup is working correctly.
 
-If double-clicking the launcher is blocked by local Windows security settings, open Command Prompt in the repository folder and run:
-
-~~~bat
-install_su2_windows.bat
-~~~
-
-The manual method below is kept as a fallback.
+If the script says that <code>SU2_CFD.exe</code> cannot be found, make sure the SU2 package has been extracted somewhere inside the repository, then run the script again.
 
 #### Option 2 — manual installation
 
